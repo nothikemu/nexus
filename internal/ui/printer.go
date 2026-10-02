@@ -31,9 +31,16 @@ func NewPrinter(m Mode) *Printer {
 	return &Printer{T: NewTheme(m, os.Stdout), Out: os.Stdout, Err: os.Stderr, In: os.Stdin}
 }
 
-// NewTestPrinter renders into a buffer with the given mode.
+// NewPrinterTo creates a printer writing to the given streams.
+func NewPrinterTo(m Mode, out, err io.Writer) *Printer {
+	return &Printer{T: NewTheme(m, out), Out: out, Err: err, In: os.Stdin}
+}
+
+// NewTestPrinter renders into buffers with the given mode and no input.
 func NewTestPrinter(m Mode, out, err io.Writer) *Printer {
-	return &Printer{T: NewTheme(m, out), Out: out, Err: err, In: strings.NewReader("")}
+	p := NewPrinterTo(m, out, err)
+	p.In = strings.NewReader("")
+	return p
 }
 
 // Mode is shorthand for the theme's mode.

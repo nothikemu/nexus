@@ -3,7 +3,7 @@ package cli
 
 import (
 	"context"
-	"errors"
+	"io"
 	"os"
 	"strings"
 
@@ -41,6 +41,8 @@ type App struct {
 	P     *ui.Printer
 	Flags *Flags
 
+	stdout, stderr io.Writer
+
 	proj    *project.Project
 	projErr error
 	loaded  bool
@@ -75,6 +77,12 @@ func (a *App) Project() (*project.Project, error) {
 			dir = "."
 		}
 		a.proj, a.projErr = project.Find(dir)
+		if a.proj != nil && a.P != nil && !a.P.Quiet() {
+			// Typos in nexus.yaml shouldn't wait for `nexus doctor` to surface.
+			for _, w := range a.proj.Warnings {
+				a.P.Errorf("%s\n", a.T().Warning.Render(a.T().Glyphs.Warning+" "+config.FileName+": "+w))
+			}
+		}
 	}
 	return a.proj, a.projErr
 }
@@ -267,5 +275,3 @@ func unknownEnvProblem(env string, known []string) error {
 	}
 	return pr
 }
-
-var errNotYet = errors.New("not built yet")

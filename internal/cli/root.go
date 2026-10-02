@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"os/signal"
 	"strconv"
@@ -27,9 +28,17 @@ const (
 func Execute() int {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
+	return Run(ctx, os.Args[1:], os.Stdout, os.Stderr)
+}
 
-	app := &App{Flags: &Flags{}}
+// Run executes the command line args, writing to stdout and stderr, and
+// returns the exit code. It is the in-process entry point used by tests.
+func Run(ctx context.Context, args []string, stdout, stderr io.Writer) int {
+	app := &App{Flags: &Flags{}, stdout: stdout, stderr: stderr}
 	root := newRoot(app)
+	root.SetArgs(args)
+	root.SetOut(stdout)
+	root.SetErr(stderr)
 	err := root.ExecuteContext(ctx)
 	app.Close()
 	if app.P != nil {
@@ -39,12 +48,18 @@ func Execute() int {
 		return ui.ExitOK
 	}
 	if app.P == nil {
-		app.P = ui.NewPrinter(app.mode())
+		app.P = app.newPrinter()
 	}
 	if ctx.Err() != nil && errors.Is(err, context.Canceled) {
 		return ui.ExitInterrupted
 	}
 	return app.report(err)
+}
+
+func (a *App) newPrinter() *ui.Printer {
+	p := ui.NewPrinterTo(a.mode(), a.stdout, a.stderr)
+	p.In = os.Stdin
+	return p
 }
 
 func (a *App) mode() ui.Mode {
@@ -63,8 +78,8 @@ func newRoot(app *App) *cobra.Command {
 		SilenceUsage:      true,
 		CompletionOptions: cobra.CompletionOptions{HiddenDefaultCmd: true},
 		PersistentPreRunE: func(cmd *cobra.Command, _ []string) error {
-			app.P = ui.NewPrinter(app.mode())
-			logging.Setup(os.Stderr, app.Flags.Verbose)
+			app.P = app.newPrinter()
+			logging.Setup(app.stderr, app.Flags.Verbose)
 			return nil
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {

@@ -392,5 +392,5 @@ func (w *logWriter) format(line string) string {
 	case "STATEMENT", "DETAIL", "HINT", "CONTEXT":
 		style = t.Muted
 	}
-	return t.Faint.Render(m[2]) + "  " + lvl.Render(ui.PadRight(strings.ToLower(level), 9)) + style.Render(msg)
+	return t.Faint.Render(m[2]) + "  " + lvl.Render(ui.PadRight(strings.ToLower(level), 10)) + style.Render(msg)
 }

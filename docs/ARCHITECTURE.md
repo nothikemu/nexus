@@ -50,33 +50,39 @@ cmd/nexus/              entrypoint (tiny; calls cli.Execute)
 internal/
   version/              build metadata (ldflags)
   logging/              slog setup (--verbose, NEXUS_LOG)
+  textutil/             small shared string algorithms
   ui/                   the visual system: modes, palette, theme, glyphs,
                         printer, panels, tables, kv, trees, sparklines,
-                        spinners, tasks, prompts, problems, voice
+                        spinner tasks, prompts, problems, code frames, voice
   ui/mascot/            the Nexus core: sprites, expressions, poses, animation
+  render/               domain renderers shared by CLI and TUIs: result sets,
+                        schemas, plans, migrations, diffs, SQL problems
   tui/                  Bubble Tea applications
     repl/               interactive SQL shell
     browser/            table explorer (rows, search, sort, JSON, FK nav, edit)
     dashboard/          `nexus` live dashboard
-    tuikit/             shared TUI styles & widgets
+    tuikit/             shared TUI helpers
   config/               nexus.yaml schema, defaults, validation, interpolation
-  project/              project discovery & scaffolding (`nexus init`)
-  safety/               operation levels & confirmation policy
+  project/              project discovery, scaffolding, local state
+  safety/               operation levels, SQL classification, confirmation
   pg/                   connections, text-format query execution, errors
   pg/introspect/        catalog snapshots (tables, columns, indexes, FKs, RLS…)
   pg/schemadiff/        snapshot → snapshot structural diff
   pg/explain/           EXPLAIN JSON parsing, analysis & recommendations
-  pg/stats/             database health & activity statistics
+  pg/stats/             overview, activity and schema health checks
+  pg/rows/              paged, searched, filtered reads in read-only transactions
+  pgtest/               throwaway databases for integration tests
   sqltext/              statement splitting, completeness, error positions
   migrate/              migration files, history, engine, locks
   localdb/              local PostgreSQL runtimes: native, docker, external
   cli/                  cobra commands (one file per command group)
-docs/                   architecture, design language, CLI reference
+docs/                   architecture, configuration, design language, CLI reference
 ```
 
 Dependency direction is strictly downward:
-`cli → tui → (migrate, localdb, pg/*, project, safety) → (config, sqltext) → ui`.
-`ui` depends on nothing internal except `ui/mascot` depending on `ui`.
+`cli → tui → render → (migrate, localdb, pg/*, project, safety) → (config, sqltext) → ui`.
+`ui` depends on nothing internal except `textutil`; `ui/mascot` depends only on `ui`.
+The `pg/*` packages never import `ui`.
 
 ---
 
@@ -152,15 +158,16 @@ reaching out to nodes. It is, literally, a nexus: the thing in the middle that
 everything connects to.
 
 ```
-        ✦
-    ▗▄▄▄▄▄▄▄▖
- ●──█ ◉   ◉ █──●
-    █       █
-    ▝▀▀▀▀▀▀▀▘
+       ✦
+    ▗▄▄▄▄▄▖
+   ▟ ◉   ◉ ▙
+●──▜       ▛──●
+    ▝▀▀▀▀▀▘
 ```
 
-* **Renderings:** `Portrait` (5×15, solid colour via background cells and
-  quadrant blocks), `Face` (single-line pill, 7 cells), `Glyph` (1 cell).
+* **Renderings:** `Portrait` (15×5, solid colour via background cells and
+  quadrant/three-quadrant blocks, so the body reads as a bevelled core),
+  `Face` (single-line pill, 7 cells), `Glyph` (1 cell).
   No-colour mode swaps to a line-art sprite; plain mode omits the mascot.
 * **States:** idle, thinking, working, success, warning, error, sleeping,
   connecting, celebrating, curious. Each state defines eyes, mouth, spark,
@@ -193,6 +200,7 @@ seeds:
 
 dev:
   auto_migrate: true
+  auto_seed: true
 
 environments:
   staging:
@@ -342,10 +350,11 @@ master secrets.
 
 | Layer | How |
 |-------|-----|
-| Unit | Pure packages (`config`, `sqltext`, `migrate` parsing, `schemadiff`, `explain` analysis, `ui` rendering in plain/no-colour mode, mascot geometry). |
-| Integration | Real PostgreSQL. Tests use `NEXUS_TEST_DATABASE_URL`, or spin up a throwaway native cluster in a temp dir when binaries exist, else skip with a reason. Each test gets an isolated database. |
-| CLI | Commands executed in-process against a temp project; JSON output asserted. |
-| CI | `gofmt`, `go vet`, `staticcheck`, `go test -race` against a PostgreSQL service container. |
+| Unit | Pure packages: `config`, `sqltext`, migration parsing, `schemadiff`, `explain` analysis, health checks, SQL safety classification, `ui` rendering in every mode, mascot geometry (every frame of every state is exactly 15×5). |
+| Integration | Real PostgreSQL via `NEXUS_TEST_DATABASE_URL`; each test gets its own throwaway database (`internal/pgtest`), and skips with a reason when the variable is unset. Covers introspection, the migration engine (drift, repair, rollback, previews, error positions, partial-failure rollback), EXPLAIN ANALYZE rollback of writes, and read-only row filters. |
+| Runtime | `localdb` starts, restarts and stops a real native cluster when binaries exist and the user isn't root. |
+| CLI | Commands run in-process (`cli.Run`) against a scaffolded project; JSON output, exit codes and protected-environment rules asserted. A docs test keeps `docs/CLI.md` in step with the command tree. |
+| CI | `gofmt`, `go vet`, `staticcheck`; `go test -race` against PostgreSQL 13, 16 and 17 service containers; builds on Linux, macOS and Windows. |
 
 ---
 

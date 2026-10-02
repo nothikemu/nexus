@@ -101,7 +101,6 @@ func runMigrationStatus(cmd *cobra.Command, app *App) error {
 type progress struct {
 	app   *App
 	tasks map[string]*ui.Task
-	verb  string
 }
 
 func (p *progress) Started(m *migrate.Migration) {

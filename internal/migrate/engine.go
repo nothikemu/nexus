@@ -481,12 +481,7 @@ func (e *Engine) Rollback(ctx context.Context, steps int, obs Observer) (*Rollba
 		m := en.File
 		obs.Started(m)
 		start := time.Now()
-		err := pgx.BeginFunc(ctx, conn.Conn(), func(tx pgx.Tx) error {
-			if _, err := tx.Exec(ctx, m.Down); err != nil {
-				return &Error{Migration: m, Section: "down", SQL: m.Down, LineOffset: m.DownLine - 1, Err: err}
-			}
-			return recordRollback(ctx, tx, m.Version, m.Name, time.Since(start))
-		})
+		err := e.revertOne(ctx, conn.Conn(), m, start)
 		d := time.Since(start)
 		obs.Finished(m, d, err)
 		if err != nil {
@@ -501,6 +496,25 @@ func (e *Engine) Rollback(ctx context.Context, steps int, obs Observer) (*Rollba
 	diff := schemadiff.Compare(before, after)
 	res.Diff = &diff
 	return res, nil
+}
+
+// revertOne runs a migration's down section: in a transaction, or statement
+// by statement for no-transaction migrations (DROP INDEX CONCURRENTLY…).
+func (e *Engine) revertOne(ctx context.Context, conn *pgx.Conn, m *Migration, start time.Time) error {
+	if m.NoTransaction {
+		for _, st := range sqltext.Split(m.Down) {
+			if _, err := conn.Exec(ctx, st.SQL); err != nil {
+				return &Error{Migration: m, Section: "down", SQL: st.SQL, LineOffset: m.DownLine - 1 + st.Line - 1, Err: err}
+			}
+		}
+		return recordRollback(ctx, conn, m.Version, m.Name, time.Since(start))
+	}
+	return pgx.BeginFunc(ctx, conn, func(tx pgx.Tx) error {
+		if _, err := tx.Exec(ctx, m.Down); err != nil {
+			return &Error{Migration: m, Section: "down", SQL: m.Down, LineOffset: m.DownLine - 1, Err: err}
+		}
+		return recordRollback(ctx, tx, m.Version, m.Name, time.Since(start))
+	})
 }
 
 // RepairAction is one fix Repair would make.

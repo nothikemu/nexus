@@ -1,0 +1,31 @@
+# Release configuration: `git tag v0.2.0 && git push --tags` publishes
+# binaries for every platform via .github/workflows/release.yml.
+version: 2
+project_name: nexus
+
+builds:
+  - main: ./cmd/nexus
+    binary: nexus
+    env: [CGO_ENABLED=0]
+    goos: [linux, darwin, windows]
+    goarch: [amd64, arm64]
+    flags: [-trimpath]
+    ldflags:
+      - -s -w
+      - -X github.com/nothikemu/nexus/internal/version.Version={{ .Version }}
+      - -X github.com/nothikemu/nexus/internal/version.Commit={{ .Commit }}
+      - -X github.com/nothikemu/nexus/internal/version.Date={{ .Date }}
+
+archives:
+  - name_template: "nexus_{{ .Os }}_{{ .Arch }}"
+    formats: [tar.gz]
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    files: [README.md, docs/*.md]
+
+checksum:
+  name_template: checksums.txt
+
+changelog:
+  sort: asc

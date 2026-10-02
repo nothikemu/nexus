@@ -35,8 +35,9 @@ type devResult struct {
 
 func newDevCmd(app *App) *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "dev",
-		Short: "start the local backend",
+		Use:     "dev",
+		Aliases: []string{"up", "start"},
+		Short:   "start the local backend (alias: nexus up)",
 		Long: "Starts the local PostgreSQL database for this project, applies pending migrations and " +
 			"seeds a fresh database. The database keeps running in the background until `nexus dev stop`.",
 		Example: "  nexus dev\n  nexus dev status\n  nexus dev logs -f\n  nexus dev stop",
@@ -272,7 +273,7 @@ func newDevStopCmd(app *App) *cobra.Command {
 			if face == "" {
 				face = mascot.Glyph(t, mascot.Sleeping)
 			}
-			app.P.Block(face + "  " + t.Text.Render(ui.Say(ui.MomentGoodbye)) + "\n\n" + t.HintString("wake it with nexus dev"))
+			app.P.Block(face + "  " + t.Text.Render(ui.Say(ui.MomentGoodbye)) + "\n\n" + t.HintString("wake it with nexus up"))
 			return nil
 		},
 	}

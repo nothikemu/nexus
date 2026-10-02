@@ -34,6 +34,7 @@ type Palette struct {
 	CoreTo   string
 	CoreDim  string // the core while sleeping
 	Eye      string // eyes & mouth, drawn on the core
+	Blush    string // rosy cheeks and hearts
 }
 
 // DarkPalette is tuned for dark terminal backgrounds (the common case).
@@ -60,10 +61,11 @@ var DarkPalette = Palette{
 	Jobs:      "#B5E655",
 	AI:        "#F08CFF",
 
-	CoreFrom: "#7B5CFF",
-	CoreTo:   "#1FC8E3",
-	CoreDim:  "#3B3566",
-	Eye:      "#FFFFFF",
+	CoreFrom: "#A08CFF",
+	CoreTo:   "#6FE3F2",
+	CoreDim:  "#4A4470",
+	Eye:      "#1A1236",
+	Blush:    "#FF8FBF",
 }
 
 // LightPalette keeps the same identity with enough contrast on light backgrounds.
@@ -90,10 +92,11 @@ var LightPalette = Palette{
 	Jobs:      "#5E8F0E",
 	AI:        "#B23ACB",
 
-	CoreFrom: "#6A43F0",
-	CoreTo:   "#0BA5C2",
+	CoreFrom: "#8E76FA",
+	CoreTo:   "#4FCFE3",
 	CoreDim:  "#A9A3CF",
-	Eye:      "#FFFFFF",
+	Eye:      "#1A1236",
+	Blush:    "#F2709F",
 }
 
 // Domain identifies a Nexus subsystem for colour coding.

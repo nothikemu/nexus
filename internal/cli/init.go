@@ -165,11 +165,29 @@ func runInit(ctx context.Context, app *App, opts project.ScaffoldOptions) error 
 		return p.JSON(initResult{Project: opts.Name, Root: res.Root, Created: res.Created, Updated: res.Updated, Runtime: kind, Port: res.Config.Database.Port})
 	}
 
+	// The easiest path: offer to start everything right now.
+	if p.Mode().Interactive && rt.Check(ctx) == nil {
+		p.Say(ui.ToneSuccess, opts.Name+" is ready.")
+		start, err := p.Confirm("start the database now?", true)
+		if err == nil && start {
+			app.Flags.ProjectDir = res.Root
+			app.loaded, app.proj, app.target = false, nil, nil
+			if err := runDev(ctx, app); err != nil {
+				return err
+			}
+			if opts.Dir != "." {
+				p.Hint("your project lives in " + opts.Dir + " — cd there to keep going")
+			}
+			return nil
+		}
+	}
+
 	var next []string
 	if opts.Dir != "." {
 		next = append(next, t.Code.Render("cd "+opts.Dir))
 	}
-	next = append(next, t.Code.Render("nexus dev")+t.Muted.Render("     start the local database"))
+	next = append(next, t.Code.Render("nexus up")+t.Muted.Render("       start the local database"))
+	next = append(next, t.Code.Render("nexus guide")+t.Muted.Render("    see everything you can do"))
 	p.Say(ui.ToneSuccess, ui.SayFirst(ui.MomentReady), strings.Join(next, "\n"))
 	return nil
 }

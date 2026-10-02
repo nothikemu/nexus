@@ -151,7 +151,7 @@ func (m *model) offlineView(h int) string {
 	t := m.t
 	state := mascot.Sleeping
 	caption := ui.SayFirst(ui.MomentAsleep)
-	hint := "start it with nexus dev"
+	hint := "start it with nexus up"
 	if m.src.Wake != nil {
 		hint = "press w to wake it"
 	}

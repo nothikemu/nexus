@@ -188,9 +188,9 @@ func renderStatusPanel(t *ui.Theme, r *statusReport, withNext bool) string {
 			if r.Migrations != nil && r.Migrations.Pending > 0 {
 				next = append(next, [2]string{"nexus migration apply", "apply pending migrations"})
 			}
-			next = append(next, [2]string{"nexus sql", "open the SQL shell"}, [2]string{"nexus db tables", "see your tables"})
+			next = append(next, [2]string{"nexus", "open the live dashboard"}, [2]string{"nexus tables", "see your tables"}, [2]string{"nexus sql", "open the SQL shell"})
 		} else if r.Env == "local" && (r.Runtime == nil || r.Runtime.Runtime != config.RuntimeExternal) {
-			next = append(next, [2]string{"nexus dev", "wake it up"})
+			next = append(next, [2]string{"nexus up", "wake it up"})
 		}
 		if len(next) > 0 {
 			var nl []string

@@ -148,3 +148,23 @@ func TestEngineOutOfOrder(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestNoTransactionMigrationAppliesAndRollsBack(t *testing.T) {
+	pool, _ := pgtest.Pool(t)
+	ctx := context.Background()
+	dir := t.TempDir()
+	e := &Engine{Pool: pool, Dir: dir, Schemas: []string{"public"}, NexusVersion: "test"}
+	write(t, dir, "20260101000000_t.sql", "create table t (id int, name text);")
+	write(t, dir, "20260102000000_idx.sql", "-- nexus:no-transaction\n-- nexus:up\ncreate index concurrently t_name_idx on t (name);\n\n-- nexus:down\ndrop index concurrently t_name_idx;\n")
+	if _, err := e.Apply(ctx, ApplyOptions{}, nil); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := e.Rollback(ctx, 1, nil); err != nil {
+		t.Fatalf("rollback of a no-transaction migration: %v", err)
+	}
+	var exists bool
+	_ = pool.QueryRow(ctx, `select to_regclass('public.t_name_idx') is not null`).Scan(&exists)
+	if exists {
+		t.Error("index still exists after rollback")
+	}
+}

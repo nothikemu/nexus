@@ -29,16 +29,16 @@ const (
 )
 
 var phrases = map[string][]string{
-	MomentAwake:      {"nexus is awake.", "nexus is up.", "nexus is awake."},
-	MomentReady:      {"ready when you are.", "you're ready.", "ready."},
-	MomentConnected:  {"everything is connected.", "all systems connected."},
-	MomentNice:       {"nice.", "done.", "nice."},
+	MomentAwake:      {"nexus is awake.", "nex is up and stretching.", "nexus is awake."},
+	MomentReady:      {"ready when you are.", "you're all set.", "ready."},
+	MomentConnected:  {"everything is connected.", "all linked up.", "everything is connected."},
+	MomentNice:       {"nice.", "done and dusted.", "nice."},
 	MomentBetter:     {"that's better.", "much better."},
 	MomentSynced:     {"everything is synced.", "all in sync."},
-	MomentAsleep:     {"nexus is asleep.", "the database is resting."},
-	MomentGoodbye:    {"see you soon.", "resting now.", "goodnight."},
-	MomentNoticed:    {"nexus noticed something.", "worth a look."},
-	MomentBroke:      {"something broke.", "that didn't work."},
+	MomentAsleep:     {"nexus is asleep.", "the database is napping."},
+	MomentGoodbye:    {"see you soon.", "nap time.", "goodnight."},
+	MomentNoticed:    {"nexus noticed something.", "ooh, worth a look."},
+	MomentBroke:      {"something broke.", "oops. that didn't work."},
 	MomentAllGood:    {"all good.", "looking healthy."},
 	MomentNothingNew: {"nothing to do.", "already up to date."},
 }

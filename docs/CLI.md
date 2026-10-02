@@ -44,6 +44,17 @@ Starts the local database in the background, applies pending migrations
 (`dev.auto_migrate`), seeds a fresh database (`dev.auto_seed`) and shows a
 status panel.
 
+Alias: `nexus up`.
+
+### `nexus down`
+
+Stops the local database (same as `nexus dev stop`). Your data stays.
+
+### `nexus guide`
+
+Everything Nexus can do on one screen, grouped by what you're trying to do.
+Aliases: `cheatsheet`, `tour`.
+
 ### `nexus dev status`
 
 The local database process: state, runtime and why it was chosen, version,
@@ -96,6 +107,15 @@ and destructive ones (`DROP`, `TRUNCATE`, `DELETE`, `UPDATE` without `WHERE`,
 `.nexus/sql_history`), `ctrl+c` cancels a running query or clears the line,
 `ctrl+d` quits. Meta commands: `\dt`, `\d [name]`, `\dn`, `\explain <q>`,
 `\analyze <q>`, `\x`, `\timing`, `\conninfo`, `\history`, `\?`, `\q`.
+
+### `nexus tables`
+
+Same as `nexus db tables`.
+
+### `nexus browse <table>`
+
+Opens the interactive explorer for a table (same as
+`nexus table <table> browse`). Without a terminal it prints the first page.
 
 ### `nexus db`
 
@@ -229,11 +249,21 @@ Same as `nexus db explain`.
 
 ## More
 
+### `nexus hi`
+
+Nex says hello: a greeting for the time of day, how your project is doing,
+and a tip that changes daily. Aliases: `hello`, `hey`.
+
+### `nexus pet`
+
+Give Nex a pat. Nex keeps count (in your user config directory) and has
+something to say at milestones. Alias: `pat`.
+
 ### `nexus mascot [state]`
 
-Meet the Nexus core. With a state (`idle`, `thinking`, `working`,
-`connecting`, `success`, `celebrating`, `curious`, `warning`, `error`,
-`sleeping`) it shows that expression; `--loop` animates until interrupted.
+Meet Nex. With a mood (`idle`, `waving`, `thinking`, `working`,
+`connecting`, `success`, `celebrating`, `love`, `curious`, `warning`,
+`error`, `sleeping`) it shows that expression; `--loop` animates until interrupted.
 
 ### `nexus version`
 

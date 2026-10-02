@@ -53,7 +53,7 @@ func (a *App) problem(err error) *ui.Problem {
 		return &ui.Problem{Title: "not inside a nexus project.", Detail: "there's no " + config.FileName + " here or in any parent directory.",
 			Hint: "create one with " + t.Cmd("nexus init my-app") + ", or explore any database with " + t.Cmd("--db-url"), Code: "no_project", Exit: ui.ExitUsage}
 	case errors.Is(err, project.ErrExists):
-		return &ui.Problem{Title: "there's already a nexus project here.", Hint: "start it with " + t.Cmd("nexus dev"), Code: "project_exists", Exit: ui.ExitUsage}
+		return &ui.Problem{Title: "there's already a nexus project here.", Hint: "start it with " + t.Cmd("nexus up"), Code: "project_exists", Exit: ui.ExitUsage}
 	case errors.As(err, &cfgErr):
 		return &ui.Problem{Title: config.FileName + " needs attention.", Detail: strings.Join(cfgErr.Problems, "\n"), Code: "invalid_config", Exit: ui.ExitUsage}
 	case errors.As(err, &missing):
@@ -71,7 +71,7 @@ func (a *App) problem(err error) *ui.Problem {
 		return &ui.Problem{Title: fmt.Sprintf("port %d is taken.", portErr.Port), Detail: "another process is listening on it.",
 			Hint: "change database.port in " + config.FileName, Code: "port_in_use"}
 	case errors.Is(err, localdb.ErrNotRunning):
-		return &ui.Problem{Title: ui.SayFirst(ui.MomentAsleep), Detail: "the local database isn't running.", Hint: "wake it with " + t.Cmd("nexus dev"), Code: "not_running", Exit: ui.ExitUnreachable}
+		return &ui.Problem{Title: ui.SayFirst(ui.MomentAsleep), Detail: "the local database isn't running.", Hint: "wake it with " + t.Cmd("nexus up"), Code: "not_running", Exit: ui.ExitUnreachable}
 	case errors.Is(err, localdb.ErrExternal):
 		return &ui.Problem{Title: "this project uses an external database.", Detail: "nexus connects to it but never starts, stops or deletes it.", Code: "external"}
 	case errors.As(err, &drift):

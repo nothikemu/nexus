@@ -75,56 +75,59 @@ stall over SSH and inside tmux.
 The **core gradient** runs from electric violet `#7B5CFF` to signal cyan
 `#1FC8E3`. It is the brand: the mascot's body and the `N E X U S` wordmark.
 
-## The Nexus core
+## Nex, the Nexus core
 
-The mascot is a small luminous data-being: a bevelled core with two eyes, a
-spark above it, and network links reaching out to two nodes. It is,
-literally, a nexus — the thing in the middle that everything connects to.
+The mascot is **Nex**: a small, round, pastel data-being with big dark eyes,
+a little `ω` mouth, rosy cheeks, stubby feet and a spark for an antenna. Its
+little arms hold two network nodes — it is, literally, a nexus. The full
+character guide is [MEET-NEX.md](MEET-NEX.md).
 
 ```
        ✦
     ▗▄▄▄▄▄▖
-   ▟ ◉   ◉ ▙
-●──▜       ▛──●
-    ▝▀▀▀▀▀▘
+   ▟ ◕ ω ◕ ▙
+●──▜▃     ▃▛──●
+    ▝▀▘ ▝▀▘
 ```
 
 ### Construction
 
-- 15 × 5 cells. Every frame of every state has exactly this size so
+- 15 × 5 cells. Every frame of every mood has exactly this size so
   animations redraw in place without jitter (enforced by tests).
 - In colour, the body is solid: background-coloured cells plus quadrant and
-  three-quadrant blocks (`▗▄▖ ▟▙ ▜▛ ▝▀▘`) give a rounded, glowing shape
-  with a horizontal violet→cyan gradient. Eyes are drawn on the body.
-- Without colour, the same geometry becomes line art (`╭─╮ │ ┤├`).
-- In plain mode the mascot is not drawn at all.
-- Three sizes: **portrait** (15×5), **face** (a 7-cell pill `▐◉ ◉▌` for
+  three-quadrant blocks give a soft rounded shape with a lavender
+  (`#A08CFF`) → aqua (`#6FE3F2`) gradient. Eyes and mouth are dark ink
+  (`#1A1236`) on the body; cheeks are half-height pink (`#FF8FBF`) blush marks.
+- Without colour, the same geometry becomes line art (`╭─╮ │ ┤├ ╰┬─╯`) with
+  `·` cheeks. In plain mode Nex is not drawn at all.
+- Three sizes: **portrait** (15×5), **face** (a 7-cell pill `▐ ◕ω◕ ▌` for
   headers and prompts), **glyph** (one cell).
+- Speech bubbles (`Theme.Speak`) put words beside the portrait, joined by a
+  short tail at face height.
 
-### Expressions
+### Moods
 
-| state | eyes | pose | used when |
+| mood | face | pose / extras | used when |
 |---|---|---|---|
-| idle | `◉ ◉`, occasional blink | links level | everything is fine |
-| thinking | `◔ ◔`, spark twinkles, dots appear | | waiting on analysis |
-| working | `◉ ◉`, packets flow inward | | running something |
-| connecting | nodes fill as packets reach them | | starting up |
-| success | `◠ ◠ ◡` | | it worked |
-| celebrating | `◠ ◠ ◡`, sparkles | links raised | big moments |
-| curious | `◉ ◕`, `?` spark | | nexus noticed something |
-| warning | `◉ ◉ ─`, `!` spark | amber nodes | needs attention |
-| error | `× × ◠` | links broken | failed |
-| sleeping | `─ ─`, drifting `z` | links lowered, dimmed | database offline |
+| idle | `◕ω◕` | blinks, glances left and right | everything is fine |
+| waving | `◠ᴗ◠` | right arm waves | greetings, welcome |
+| thinking | `◔~◔` | antenna twinkles, dots appear | waiting on analysis |
+| working | `•ᴗ•` | packets flow inward | running something |
+| connecting | `◕o◕` | nodes fill as packets reach them | starting up |
+| success | `◠ᴗ◠` | green nodes | it worked |
+| celebrating | `✧ᴗ✧` | arms raised, sparkles | big moments |
+| love | `♥ᴗ♥` | floating hearts | `nexus pet` |
+| curious | `◕o◉` | `?` antenna, glancing | nexus noticed something |
+| warning | `◉~◉` | `!` antenna, amber nodes | needs attention |
+| error | `×^×` | links broken | failed |
+| sleeping | `‿.‿` | arms lowered, dimmed, drifting `z` | database offline |
 
-See them all with `nexus mascot`, or one with `nexus mascot sleeping`.
+### When Nex appears
 
-### When the mascot appears
-
-Sparingly. The portrait appears for first-run moments (`nexus init`), the
-offline dashboard, and `nexus mascot`. The face appears in headers (dashboard,
-SQL shell, status panels) where it reflects real state: sleeping when the
-database is down, curious when there are pending migrations or health
-findings. Everywhere else, Nexus speaks with a single glyph.
+Sparingly. The portrait appears for first-run and social moments (`init`,
+the welcome screen, `hi`, `pet`, `mascot`) and the offline dashboard. The
+face appears in headers (dashboard, SQL shell, status panels, doctor) where
+it reflects real state. Everywhere else Nexus speaks with a single glyph.
 
 ## Motion
 
@@ -137,9 +140,12 @@ findings. Everywhere else, Nexus speaks with a single glyph.
 
 ## Voice
 
-Nexus speaks in lowercase, in short, calm, confident sentences. It is
-clever and occasionally warm, never obnoxious, never sarcastic, and never
-more than one line of personality per command.
+Nexus speaks in lowercase, in short, calm, warm sentences. It is clever and
+friendly, sometimes a little playful ("databases never really sleep."),
+never obnoxious, never sarcastic, and never lets personality get between you
+and the information. Exclamation marks are rare and reserved for genuinely
+happy moments, like a pat. Errors always say exactly what broke and what to
+do next — a joke is never a substitute.
 
 | good | bad |
 |---|---|
@@ -149,8 +155,9 @@ more than one line of personality per command.
 | `◈ that's better.` | `OMG you fixed it 🎉🎉` |
 | `✕ nexus is asleep.` → `wake it with nexus dev` | `Error: connection refused` |
 
-The phrase catalogue lives in `internal/ui/voice.go`. Tests enforce that
-every phrase is lowercase and has no exclamation marks.
+The core phrase catalogue lives in `internal/ui/voice.go` (tests keep it
+lowercase and calm); Nex's greetings, tips and reactions live in
+`internal/cli/nex.go`.
 
 ### Errors
 

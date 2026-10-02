@@ -174,7 +174,7 @@ func (a *App) connectProblem(ctx context.Context, t *Target, err error) error {
 				pr.Detail = "the local database is stopped."
 			}
 		}
-		return pr.WithHint("wake it with %s", a.T().Cmd("nexus dev"))
+		return pr.WithHint("wake it with %s", a.T().Cmd("nexus up"))
 	case pg.IsUnreachable(err):
 		return &ui.Problem{Title: "couldn't reach the " + t.Env + " database.", Detail: err.Error(), Code: "database_unreachable", Exit: ui.ExitUnreachable, Err: err}
 	case pg.IsAuthError(err):
@@ -186,7 +186,7 @@ func (a *App) connectProblem(ctx context.Context, t *Target, err error) error {
 	case pg.IsMissingDatabase(err):
 		pr := &ui.Problem{Title: "database " + where.Database + " doesn't exist.", Detail: err.Error(), Code: "database_missing", Exit: ui.ExitUnreachable, Err: err}
 		if t.Env == "local" {
-			pr.Hint = "create it with " + a.T().Cmd("nexus dev")
+			pr.Hint = "create it with " + a.T().Cmd("nexus up")
 		}
 		return pr
 	}

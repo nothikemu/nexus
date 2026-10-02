@@ -45,7 +45,7 @@ func TestHelpVersionMascot(t *testing.T) {
 	}
 	var states []map[string]string
 	run(t, "mascot", "--json").json(t, &states)
-	if len(states) != 10 {
+	if len(states) != 12 {
 		t.Errorf("mascot states = %d", len(states))
 	}
 	r = run(t, "statsu", "--plain")
@@ -213,5 +213,28 @@ func TestMissingSecretFailsLoudly(t *testing.T) {
 	r := run(t, "-C", dir, "--json", "--env", "production", "status")
 	if r.code != 2 || !strings.Contains(r.err, "NEXUS_DEFINITELY_UNSET_VAR") {
 		t.Errorf("code=%d stderr=%s", r.code, r.err)
+	}
+}
+
+func TestFriendlyCommands(t *testing.T) {
+	t.Setenv("XDG_CONFIG_HOME", t.TempDir())
+	t.Setenv("HOME", t.TempDir())
+	var pet struct{ Pats int }
+	run(t, "pet", "--json").json(t, &pet)
+	run(t, "pet", "--json").json(t, &pet)
+	if pet.Pats != 2 {
+		t.Errorf("pats = %d, nex should remember", pet.Pats)
+	}
+	var hi struct{ Says []string }
+	run(t, "-C", t.TempDir(), "hi", "--json").json(t, &hi)
+	if len(hi.Says) < 3 || !strings.HasPrefix(hi.Says[len(hi.Says)-1], "tip: ") {
+		t.Errorf("hi = %+v", hi)
+	}
+	r := run(t, "-C", t.TempDir(), "--plain")
+	if r.code != 0 || !strings.Contains(r.out, "nexus init my-app") {
+		t.Errorf("welcome: code=%d out=%s err=%s", r.code, r.out, r.err)
+	}
+	if r := run(t, "guide", "--plain"); r.code != 0 || !strings.Contains(r.out, "nexus migration diff") {
+		t.Errorf("guide: %s", r.out)
 	}
 }

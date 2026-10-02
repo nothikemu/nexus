@@ -86,6 +86,9 @@ func newRoot(app *App) *cobra.Command {
 			if len(args) > 0 {
 				return unknownCommand(cmd, args[0])
 			}
+			if !app.HasProject() && app.Flags.DBURL == "" && os.Getenv("NEXUS_DATABASE_URL") == "" {
+				return runWelcome(cmd.Context(), app)
+			}
 			m := app.P.Mode()
 			if m.Interactive && !m.Plain && !m.JSON {
 				return runDashboard(cmd.Context(), app)
@@ -118,9 +121,9 @@ func newRoot(app *App) *cobra.Command {
 			root.AddCommand(c)
 		}
 	}
-	add(groupStart, newInitCmd(app), newDevCmd(app), newStatusCmd(app), newDoctorCmd(app))
-	add(groupDatabase, newSQLCmd(app), newDBCmd(app), newTableCmd(app), newMigrationCmd(app), newQueryCmd(app))
-	add(groupMore, newMascotCmd(app), newVersionCmd(app))
+	add(groupStart, newInitCmd(app), newDevCmd(app), newDownCmd(app), newStatusCmd(app), newDoctorCmd(app), newGuideCmd(app))
+	add(groupDatabase, newSQLCmd(app), newTablesCmd(app), newTableCmd(app), newBrowseCmd(app), newDBCmd(app), newMigrationCmd(app), newQueryCmd(app))
+	add(groupMore, newHiCmd(app), newPetCmd(app), newMascotCmd(app), newVersionCmd(app))
 	root.SetHelpCommandGroupID(groupMore)
 	root.SetCompletionCommandGroupID(groupMore)
 

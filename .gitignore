@@ -1,0 +1,16 @@
+# Build output
+/bin/
+/dist/
+/nexus
+*.test
+*.out
+coverage.*
+
+# Nexus local state (when dogfooding inside the repo)
+.nexus/
+
+# Editors / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
